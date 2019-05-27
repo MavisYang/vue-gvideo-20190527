@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.alivc.vod.dao.VodVideoDao" >
+ <resultMap id="videoResultMap" type="com.alivc.vod.pojo.PersonageVideo">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="user.userId" jdbcType="VARCHAR" />
+		<result column="video_id" property="videoId" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<result column="duration" property="duration" jdbcType="FLOAT" />
+		<result column="cover_url" property="coverUrl" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="first_frame_url" property="firstFrameUrl" jdbcType="VARCHAR" />
+		<result column="creation_time" property="creationTime" jdbcType="TIMESTAMP" />
+		<result column="size" property="size" jdbcType="INTEGER" />
+		<result column="tags" property="tags" jdbcType="VARCHAR" />
+		<result column="cate_id" property="cateId" jdbcType="INTEGER" />
+		<result column="cate_name" property="cateName" jdbcType="VARCHAR" />
+		<result column="nick_name" property="user.userName" jdbcType="VARCHAR" />
+		<result column="avatar_url" property="user.avatarUrl" jdbcType="VARCHAR" />
+		<result column="share_url" property="shareUrl" jdbcType="VARCHAR" />
+		<result column="transcode_status" property="transcodeStatus" jdbcType="VARCHAR" />
+		<result column="snapshot_status" property="snapshotStatus" jdbcType="VARCHAR" />
+		<result column="censor_status" property="censorStatus" jdbcType="VARCHAR" />
+		<result column="narrow_transcode_status" property="narrowTranscodeStatus" jdbcType="VARCHAR" />
+		<result column="isRecommend" property="isRecommend" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	 <resultMap id="recommendVideoResultMap" type="com.alivc.vod.pojo.RecommendVideo">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="user.userId" jdbcType="VARCHAR" />
+		<result column="video_id" property="videoId" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<result column="duration" property="duration" jdbcType="FLOAT" />
+		<result column="cover_url" property="coverUrl" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="first_frame_url" property="firstFrameUrl" jdbcType="VARCHAR" />
+		<result column="creation_time" property="creationTime" jdbcType="TIMESTAMP" />
+		<result column="size" property="size" jdbcType="INTEGER" />
+		<result column="tags" property="tags" jdbcType="VARCHAR" />
+		<result column="cate_id" property="cateId" jdbcType="INTEGER" />
+		<result column="cate_name" property="cateName" jdbcType="VARCHAR" />
+		<result column="nick_name" property="user.userName" jdbcType="VARCHAR" />
+		<result column="avatar_url" property="user.avatarUrl" jdbcType="VARCHAR" />
+		<result column="share_url" property="shareUrl" jdbcType="VARCHAR" />
+		<result column="transcode_status" property="transcodeStatus" jdbcType="VARCHAR" />
+		<result column="snapshot_status" property="snapshotStatus" jdbcType="VARCHAR" />
+		<result column="censor_status" property="censorStatus" jdbcType="VARCHAR" />
+		<result column="narrow_transcode_status" property="narrowTranscodeStatus" jdbcType="VARCHAR" />
+		<result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
+	</resultMap>
+	 <resultMap id="SnapshotResultMap" type="com.alivc.vod.pojo.VideoSnapshot">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="video_id" property="videoId" jdbcType="VARCHAR" />
+		<result column="snapshot_url" property="snapshotUrl" jdbcType="VARCHAR" />
+	</resultMap>
+	 <resultMap id="FileResultMap" type="com.alivc.vod.pojo.VideoFile">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="video_id" property="videoId" jdbcType="VARCHAR" />
+		<result column="file_url" property="fileUrl" jdbcType="VARCHAR" />
+	</resultMap>
+	 <resultMap id="TranscodeRequestResultMap" type="com.alivc.vod.pojo.TranscodeRequest">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="job_id" property="jobId" jdbcType="VARCHAR" />
+		<result column="transcode_type" property="transcodeType" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="VARCHAR" />
+	</resultMap>
+	 <sql id="Base_Column_List" >
+    v.id, v.user_id, v.video_id, v.title, v.description, v.duration, 
+     v.cover_url, v.status,v.first_frame_url,
+     v.creation_time, v.size, v.tags,v.cate_id,v.cate_name ,v.share_url,l.nick_name,
+      l.avatar_url, v.censor_status,v.snapshot_status,v.transcode_status ,v.narrow_transcode_status ,v.isRecommend  
+    </sql>
+	
+	<sql id="Recommend_Column_List" >
+    v.id, v.user_id, v.video_id, v.title, v.description, v.duration, 
+      v.cover_url, v.status,v.first_frame_url, v.creation_time,
+     v.size, v.tags,v.cate_id,v.cate_name ,v.share_url,l.nick_name,
+     l.avatar_url,v.censor_status,v.snapshot_status,v.transcode_status ,v.narrow_transcode_status,v.file_url    
+    </sql>
+    
+	<select id="getPersonageVideo"    resultMap="videoResultMap">
+		SELECT 
+			 <include refid="Base_Column_List" />
+		from vod_videos v  LEFT JOIN  live_userInfo l on v.user_id = l.user_id 
+		<!-- where  v.user_id =  #{userId,jdbcType=VARCHAR} -->
+		<where>
+		<if test="userId != null and userId != ''">
+				v.user_id  = #{userId,jdbcType=VARCHAR} 
+		</if>
+		<if test="id != null and id != ''">
+			and	v.id  &lt; #{id,jdbcType=INTEGER} 
+		</if>
+		</where>
+		order by v.id desc LIMIT #{pageIndex,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
+	</select>
+	
+	<select id="getRecommendVideo"    resultMap="recommendVideoResultMap">
+		SELECT 
+			 <include refid="Recommend_Column_List" />
+		from vod_recommend_video v  LEFT JOIN  live_userInfo l on v.user_id = l.user_id 
+		<where>
+		<if test="id != null and id != ''">
+				v.id  &lt; #{id,jdbcType=INTEGER} 
+		</if>
+		</where>
+		 order by v.id desc LIMIT #{pageIndex,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
+	</select>
+  
+    <select id="getVideoById"  parameterType="java.lang.String"   resultMap="videoResultMap">
+	   SELECT 
+	     DISTINCT  v.id, v.user_id, v.video_id, v.title, v.description, v.duration, v.cover_url, v.status,v.first_frame_url,
+	     v.creation_time, v.size, v.tags,v.cate_id,v.cate_name,v.censor_status,v.snapshot_status,v.transcode_status,v.narrow_transcode_status 
+	   from vod_videos  v where v.video_id =  #{videoId,jdbcType=VARCHAR}
+	</select>
+	
+    <select id="getRecommendVideoById"  parameterType="java.lang.String"   resultMap="recommendVideoResultMap">
+	   SELECT 
+	     DISTINCT  v.id, v.user_id, v.video_id, v.title, v.description, v.duration, v.cover_url, v.status,v.first_frame_url,
+	     v.creation_time, v.size, v.tags,v.cate_id,v.cate_name,v.censor_status,v.snapshot_status,v.transcode_status,v.narrow_transcode_status 
+	   from vod_recommend_video  v where v.video_id =  #{videoId,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectPersonageNums" resultType="java.lang.Integer">
+    select count(*) from vod_videos  
+	    <where>
+			    <if test="userId != null and userId != ''">
+					 user_id = #{userId,jdbcType=VARCHAR}
+				</if>
+		</where>
+    </select>
+    
+	<select id="selectVideoNums" parameterType="com.alivc.vod.pojo.VideosParam" resultType="java.lang.Integer">
+    select count(*) from vod_videos  v  LEFT JOIN  live_userInfo l on v.user_id = l.user_id 
+	    <where>
+		    <if test="videoId != null and videoId != ''">
+				 v.video_id = #{videoId,jdbcType=VARCHAR}
+			</if>
+			<if test=" userId != null and userId != '' ">
+				and v.user_id = #{userId,jdbcType=VARCHAR}
+			</if>
+			<if test="userName != null and userName != '' ">
+				and l.nick_name = #{userName,jdbcType=VARCHAR}
+			</if>
+			<if test="title != null and title != '' ">
+				and v.title = #{title,jdbcType=VARCHAR}
+			</if>
+			<if test="censorStatus != null and censorStatus != '' ">
+				and v.censor_status = #{censorStatus,jdbcType=VARCHAR}
+			</if>
+			<if test="startTime !=null and startTime != '' ">
+			    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') >= DATE_FORMAT(#{startTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')   ]]>
+	  		</if>
+	  		<if test="endTime !=null and endTime != '' ">
+	  		    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') <= DATE_FORMAT(#{endTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')    ]]>
+	  		</if>
+	    </where>
+    </select>
+	<select id="selectVideoReommendNums" parameterType="com.alivc.vod.pojo.VideosParam" resultType="java.lang.Integer">
+    select count(*) from vod_recommend_video  v  LEFT JOIN  live_userInfo l on v.user_id = l.user_id 
+	    <where>
+		    <if test="videoId != null and videoId != ''">
+				 v.video_id = #{videoId,jdbcType=VARCHAR}
+			</if>
+			<if test=" userId != null and userId != '' ">
+				and v.user_id = #{userId,jdbcType=VARCHAR}
+			</if>
+			<if test="userName != null and userName != '' ">
+				and l.nick_name = #{userName,jdbcType=VARCHAR}
+			</if>
+			<if test="title != null and title != '' ">
+				and v.title = #{title,jdbcType=VARCHAR}
+			</if>
+			<if test="censorStatus != null and censorStatus != '' ">
+				and v.censor_status = #{censorStatus,jdbcType=VARCHAR}
+			</if>
+			<if test="startTime !=null and startTime != '' ">
+			    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') >= DATE_FORMAT(#{startTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')   ]]>
+	  		</if>
+	  		<if test="endTime !=null and endTime != '' ">
+	  		    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') <= DATE_FORMAT(#{endTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')    ]]>
+	  		</if>
+	    </where>
+    </select>
+    
+	<select id="selectReommendNums" resultType="java.lang.Integer">
+    	select count(*) from vod_recommend_video  
+    </select>
+
+    <delete id="deleteVideoById" >
+	    delete from vod_videos
+	    where video_id =   #{videoId,jdbcType=VARCHAR}  and  #{userId,jdbcType=VARCHAR}
+    </delete>
+    
+    <delete id="deleteRecommendById" >
+	    delete from vod_Recommend_video
+	    where video_id =   #{videoId,jdbcType=VARCHAR}  and  #{userId,jdbcType=VARCHAR}
+    </delete>
+
+    <insert id="insert" parameterType="com.alivc.vod.pojo.PersonageVideo" >
+	    insert into vod_videos ( user_id, video_id, title, description, duration,
+	     cover_url, censor_status, creation_time, size, tags ,cate_id,cate_name  )
+	    values (#{user.userId,jdbcType=VARCHAR}, #{videoId,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR},
+	    #{description,jdbcType=VARCHAR}, #{duration,jdbcType=FLOAT}, #{coverUrl,jdbcType=VARCHAR},#{censorStatus,jdbcType=VARCHAR},
+	    #{creationTime,jdbcType=TIMESTAMP}, #{size,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}
+	    , #{cateId,jdbcType=INTEGER}, #{cateName,jdbcType=VARCHAR}  )
+    </insert>
+  
+    <insert id="insertRecommendVideo" parameterType="com.alivc.vod.pojo.RecommendVideo" >
+	    insert into vod_recommend_video ( user_id, video_id, title, description, duration,
+	     cover_url, censor_status, creation_time, size, tags ,cate_id,cate_name ,
+	     transcode_status, snapshot_status,  narrow_transcode_status, first_frame_url, file_url)
+	    values (#{user.userId,jdbcType=VARCHAR}, #{videoId,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR},
+	    #{description,jdbcType=VARCHAR}, #{duration,jdbcType=FLOAT}, #{coverUrl,jdbcType=VARCHAR},#{censorStatus,jdbcType=VARCHAR},
+	    #{creationTime,jdbcType=TIMESTAMP}, #{size,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}
+	    , #{cateId,jdbcType=INTEGER}, #{cateName,jdbcType=VARCHAR}, #{transcodeStatus,jdbcType=VARCHAR}, #{snapshotStatus,jdbcType=VARCHAR}
+	    ,  #{narrowTranscodeStatus,jdbcType=VARCHAR},  #{firstFrameUrl,jdbcType=VARCHAR},  #{fileUrl,jdbcType=VARCHAR})
+    </insert>
+  
+  
+  <update id="updateVideo" parameterType="com.alivc.vod.pojo.PersonageVideo" >
+    update vod_videos
+    <set >
+      <if test="user != null and user.userId !=null and user.userId !=''">
+			 user_id = #{user.userId,jdbcType=VARCHAR},   
+	  </if>
+      <if test="videoId !=null and videoId !=''">
+			 video_id = #{videoId,jdbcType=VARCHAR},   
+	  </if>
+      <if test="title !=null and title !=''">
+			 title = #{title,jdbcType=VARCHAR},   
+	  </if>
+      <if test="description !=null and description !=''">
+			 description = #{description,jdbcType=VARCHAR},   
+	  </if>
+      <if test="duration !=null and duration !=''">
+			 duration = #{duration,jdbcType=FLOAT},   
+	  </if>
+      <if test="coverUrl !=null and coverUrl !=''">
+			 cover_url = #{coverUrl,jdbcType=VARCHAR},   
+	  </if>
+      <if test="status !=null and status !=''">
+			 status = #{status,jdbcType=VARCHAR},   
+	  </if>
+      <if test="creationTime !=null and creationTime !=''">
+			 creation_time = #{creationTime,jdbcType=TIMESTAMP},   
+	  </if>
+      <if test="size !=null and size !=''">
+			 size = #{size,jdbcType=INTEGER},
+	  </if>
+      <if test="tags !=null and tags !=''">
+			 tags = #{tags,jdbcType=VARCHAR},
+	  </if>
+      <if test="cateId !=null and cateId !=''">
+			 cate_id = #{cateId,jdbcType=INTEGER},  
+	  </if>
+      <if test="cateName !=null and cateName !=''">
+			 cate_name = #{cateName,jdbcType=VARCHAR},
+	  </if>
+      <if test="firstFrameUrl !=null and firstFrameUrl !=''">
+			 first_frame_url = #{firstFrameUrl,jdbcType=VARCHAR},
+	  </if>
+      <if test="transcodeStatus !=null and transcodeStatus !=''">
+			 transcode_status = #{transcodeStatus,jdbcType=VARCHAR},  
+	  </if>
+      <if test="snapshotStatus !=null and snapshotStatus !=''">
+			 snapshot_status = #{snapshotStatus,jdbcType=VARCHAR},  
+	  </if>
+      <if test="censorStatus !=null and censorStatus !=''">
+			 censor_status = #{censorStatus,jdbcType=VARCHAR}, 
+	  </if>
+      <if test="narrowTranscodeStatus !=null and narrowTranscodeStatus !=''">
+			 narrow_transcode_status = #{narrowTranscodeStatus,jdbcType=VARCHAR}, 
+	  </if>
+      <if test="isRecommend !=null and isRecommend !=''">
+			 isRecommend = #{isRecommend,jdbcType=VARCHAR}, 
+	  </if>
+       
+     
+    </set>
+    where video_id = #{videoId,jdbcType=INTEGER}
+  </update>
+  <update id="updateRecommendVideo" parameterType="com.alivc.vod.pojo.RecommendVideo" >
+    update vod_recommend_video
+    <set >
+      <if test="user != null and user.userId !=null and user.userId !=''">
+			 user_id = #{user.userId,jdbcType=VARCHAR},   
+	  </if>
+      <if test="videoId !=null and videoId !=''">
+			 video_id = #{videoId,jdbcType=VARCHAR},   
+	  </if>
+      <if test="title !=null and title !=''">
+			 title = #{title,jdbcType=VARCHAR},   
+	  </if>
+      <if test="description !=null and description !=''">
+			 description = #{description,jdbcType=VARCHAR},   
+	  </if>
+      <if test="duration !=null and duration !=''">
+			 duration = #{duration,jdbcType=FLOAT},   
+	  </if>
+      <if test="coverUrl !=null and coverUrl !=''">
+			 cover_url = #{coverUrl,jdbcType=VARCHAR},   
+	  </if>
+      <if test="status !=null and status !=''">
+			 status = #{status,jdbcType=VARCHAR},   
+	  </if>
+      <if test="creationTime !=null and creationTime !=''">
+			 creation_time = #{creationTime,jdbcType=TIMESTAMP},   
+	  </if>
+      <if test="size !=null and size !=''">
+			 size = #{size,jdbcType=INTEGER},
+	  </if>
+      <if test="tags !=null and tags !=''">
+			 tags = #{tags,jdbcType=VARCHAR},
+	  </if>
+      <if test="cateId !=null and cateId !=''">
+			 cate_id = #{cateId,jdbcType=INTEGER},  
+	  </if>
+      <if test="cateName !=null and cateName !=''">
+			 cate_name = #{cateName,jdbcType=VARCHAR},
+	  </if>
+      <if test="firstFrameUrl !=null and firstFrameUrl !=''">
+			 first_frame_url = #{firstFrameUrl,jdbcType=VARCHAR},
+	  </if>
+      <if test="transcodeStatus !=null and transcodeStatus !=''">
+			 transcode_status = #{transcodeStatus,jdbcType=VARCHAR},  
+	  </if>
+      <if test="snapshotStatus !=null and snapshotStatus !=''">
+			 snapshot_status = #{snapshotStatus,jdbcType=VARCHAR},  
+	  </if>
+      <if test="censorStatus !=null and censorStatus !=''">
+			 censor_status = #{censorStatus,jdbcType=VARCHAR}, 
+	  </if>
+      <if test="narrowTranscodeStatus !=null and narrowTranscodeStatus !=''">
+			 narrow_transcode_status = #{narrowTranscodeStatus,jdbcType=VARCHAR}, 
+	  </if>
+      <if test="fileUrl !=null and fileUrl !=''">
+			 file_url = #{fileUrl,jdbcType=VARCHAR}, 
+	  </if>
+     
+    </set>
+    where video_id = #{videoId,jdbcType=INTEGER}
+  </update>
+  
+  <select id="getVideos"  parameterType="com.alivc.vod.pojo.VideosParam"  resultMap="videoResultMap">
+		SELECT 
+			 <include refid="Base_Column_List" />
+		from vod_videos v  LEFT JOIN  live_userInfo l on v.user_id = l.user_id 
+		<where>
+		    <if test="videoId != null and videoId != ''">
+				 v.video_id = #{videoId,jdbcType=VARCHAR}
+			</if>
+			<if test=" userId != null and userId != '' ">
+				and v.user_id = #{userId,jdbcType=VARCHAR}
+			</if>
+			<if test="userName != null and userName != '' ">
+				and l.nick_name = #{userName,jdbcType=VARCHAR}
+			</if>
+			<if test="title != null and title != '' ">
+				and v.title = #{title,jdbcType=VARCHAR}
+			</if>
+			<if test="censorStatus != null and censorStatus != '' ">
+				and v.censor_status = #{censorStatus,jdbcType=VARCHAR}
+			</if>
+			<if test="startTime !=null and startTime != '' ">
+			    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') >= DATE_FORMAT(#{startTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')   ]]>
+	  		</if>
+	  		<if test="endTime !=null and endTime != '' ">
+	  		    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') <= DATE_FORMAT(#{endTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')    ]]>
+	  		</if>
+	    </where>
+		  order by v.id desc LIMIT #{pageIndex,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
+	</select>
+  <select id="getRecommendVideos"  parameterType="com.alivc.vod.pojo.VideosParam"  resultMap="recommendVideoResultMap">
+		SELECT 
+			 <include refid="Recommend_Column_List" />
+		from vod_recommend_video v   LEFT JOIN  live_userInfo l on v.user_id = l.user_id 
+		<where>
+		    <if test="videoId != null and videoId != ''">
+				 v.video_id = #{videoId,jdbcType=VARCHAR}
+			</if>
+			<if test=" userId != null and userId != '' ">
+				and v.user_id = #{userId,jdbcType=VARCHAR}
+			</if>
+			<if test="userName != null and userName != '' ">
+				and l.nick_name = #{userName,jdbcType=VARCHAR}
+			</if>
+			<if test="title != null and title != '' ">
+				and v.title = #{title,jdbcType=VARCHAR}
+			</if>
+			<if test="censorStatus != null and censorStatus != '' ">
+				and v.censor_status = #{censorStatus,jdbcType=VARCHAR}
+			</if>
+			<if test="startTime !=null and startTime != '' ">
+			    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') >= DATE_FORMAT(#{startTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')   ]]>
+	  		</if>
+	  		<if test="endTime !=null and endTime != '' ">
+	  		    <![CDATA[  and DATE_FORMAT(v.creation_time, '%Y-%m-%d %k:%i:%s') <= DATE_FORMAT(#{endTime,jdbcType=TIMESTAMP}, '%Y-%m-%d %k:%i:%s')    ]]>
+	  		</if>
+	    </where>
+		  order by v.id desc LIMIT #{pageIndex,jdbcType=INTEGER}, #{pageSize,jdbcType=INTEGER}
+	</select>
+	
+   <insert id="addVideoSnapshot" useGeneratedKeys="true" keyProperty="id" parameterType="com.alivc.vod.pojo.VideoSnapshot" >
+    insert into vod_snapshot 
+    (
+    video_id, snapshot_url
+	 )
+    values 
+    (
+    #{videoId,jdbcType=VARCHAR}, #{snapshotUrl,jdbcType=VARCHAR}
+     )
+  </insert>
+  
+   <insert id="addVideoFileUrl" useGeneratedKeys="true" keyProperty="id" parameterType="com.alivc.vod.pojo.VideoFile" >
+    insert into vod_file 
+    (
+    video_id, file_url
+	 )
+    values 
+    (
+    #{videoId,jdbcType=VARCHAR}, #{fileUrl,jdbcType=VARCHAR}
+     )
+  </insert>
+  
+  <select id="getSnapshotById" resultMap="SnapshotResultMap" parameterType="java.lang.String" >
+    select 
+     video_id,snapshot_url
+    from vod_snapshot
+    where video_id = #{videoId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getFileById" resultMap="FileResultMap" parameterType="java.lang.String" >
+    select 
+     video_id,file_url
+    from vod_file
+    where video_id = #{videoId,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="insertTranscodeRequest" useGeneratedKeys="true" keyProperty="id" parameterType="com.alivc.vod.pojo.TranscodeRequest" >
+    insert into vod_transcode 
+    (
+    job_id, transcode_type, create_time
+	 )
+    values 
+    (
+    #{jobId,jdbcType=VARCHAR}, #{transcodeType,jdbcType=VARCHAR}, #{createTime,jdbcType=VARCHAR}
+     )
+  </insert>
+  <select id="getTranscodeByJobId"  parameterType="java.lang.String"   resultMap="TranscodeRequestResultMap">
+	   SELECT id,job_id,transcode_type,create_time
+	   from vod_transcode  where job_id =  #{jobId,jdbcType=VARCHAR}
+  </select>
+    
+</mapper>

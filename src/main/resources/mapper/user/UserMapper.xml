@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ 
+<mapper namespace="com.alivc.user.dao.UserDao">
+     <resultMap id="UserResultMap" type="com.alivc.user.pojo.User">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="VARCHAR" />
+		<result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+		<result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR" />
+		<result column="push_url" property="pushUrl" jdbcType="VARCHAR" />
+		<result column="play_flv" property="playFlv" jdbcType="VARCHAR" />
+		<result column="play_hls" property="playHls" jdbcType="VARCHAR" />
+		<result column="play_rtmp" property="playRtmp" jdbcType="VARCHAR" />
+		<result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP" />
+		<result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<select id="getUserById"  parameterType="com.alivc.user.pojo.User" resultMap="UserResultMap">
+		SELECT id, user_id, nick_name, avatar_url, push_url, play_flv, play_hls, play_rtmp,gmt_create,gmt_modified from live_userInfo   
+		<where>
+		<if test="id !=null  and id !=''">
+			and id = #{id,jdbcType=INTEGER}    
+		</if>
+		<if test="userId !=null and userId !=''">
+			and user_id = #{userId,jdbcType=VARCHAR}   
+		</if>
+		  </where> 
+	</select>
+	
+    <insert id="insertGuest" useGeneratedKeys="true" keyProperty="id" parameterType="com.alivc.user.pojo.User" >
+	    insert into live_userInfo (user_id, nick_name, avatar_url, push_url, play_flv, play_hls, play_rtmp,gmt_create)
+	    values 
+	    (#{userId,jdbcType=VARCHAR}, #{nickName,jdbcType=VARCHAR}, #{avatarUrl,jdbcType=VARCHAR},
+	     #{pushUrl,jdbcType=VARCHAR}, #{playFlv,jdbcType=VARCHAR}, #{playHls,jdbcType=VARCHAR},
+	     #{playRtmp,jdbcType=VARCHAR},#{gmtCreate,jdbcType=TIMESTAMP})
+    </insert>
+  
+    <update id="updateUser" parameterType="com.alivc.user.pojo.User" >
+	    update live_userInfo
+	    set nick_name = #{nickName,jdbcType=VARCHAR} , gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+	    where user_id = #{userId,jdbcType=VARCHAR}  
+    </update>
+   
+	
+</mapper>

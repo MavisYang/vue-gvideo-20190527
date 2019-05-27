@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+ 
+<mapper namespace="com.alivc.vod.dao.ConsoleUserDao">
+    <resultMap id="ConsoleUserResultMap" type="com.alivc.vod.pojo.ConsoleUser">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="VARCHAR" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="password" property="password" jdbcType="VARCHAR" />
+		<result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<resultMap id="TokenResultMap" type="com.alivc.vod.pojo.ConsoleToken">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="user_id" property="userId" jdbcType="VARCHAR" />
+		<result column="token" property="token" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<select id="getConsoleUser"  parameterType="com.alivc.vod.pojo.ConsoleUser" resultMap="ConsoleUserResultMap">
+		SELECT id, user_id, user_name, password,avatar_url, create_time from console_userinfo 
+		  <where>
+		<if test="userName !=null  and userName !=''">
+		   and user_name = #{userName,jdbcType=VARCHAR}    
+		</if>
+		<if test="password !=null  and password !=''">
+		   and password = #{password,jdbcType=VARCHAR}    
+		</if>
+		<if test="userId !=null  and userId !=''">
+			and user_id = #{userId,jdbcType=VARCHAR}    
+		</if>
+		  </where> 
+	</select>
+	
+	<select id="getInfoByToken"  parameterType="java.lang.String" resultMap="TokenResultMap">
+		SELECT id, user_id, token, createtime from console_token 
+		   where date(createtime)   >= date_sub(curdate(), interval 30 day)
+		   and  token = #{token,jdbcType=VARCHAR}    
+	</select>
+	
+	<update id="updateToken" parameterType="com.alivc.vod.pojo.ConsoleToken" >
+    	update console_token
+    <set >
+      <if test="token !=null and token !=''">
+			 token = #{token,jdbcType=VARCHAR},   
+	  </if>
+      <if test="creationTime !=null and creationTime !=''">
+			 creationtime = #{creationTime,jdbcType=TIMESTAMP},   
+	  </if>
+    </set>
+    	where user_id = #{userId,jdbcType=INTEGER}
+  	</update>
+  	
+  	 <insert id="insert" parameterType="com.alivc.vod.pojo.ConsoleToken" >
+	    insert into console_token ( token, createtime, user_id)
+	    values (#{token,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{userId,jdbcType=VARCHAR})
+     </insert>
+     <delete id="deleteConsoleToken" parameterType="java.lang.String" >
+	    delete from console_token
+	    where token =   #{token,jdbcType=VARCHAR}   
+    </delete>
+	
+</mapper>

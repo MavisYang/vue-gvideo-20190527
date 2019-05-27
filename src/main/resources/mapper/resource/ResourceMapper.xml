@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.alivc.resource.dao.ResourceDao" >
+    <resultMap id="pasterResultMap" type="com.alivc.resource.pojo.Paster">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="icon" property="icon" jdbcType="VARCHAR" />
+		<result column="description" property="description" jdbcType="VARCHAR" />
+		<result column="level" property="level" jdbcType="VARCHAR" />
+		<result column="pasterId" property="pasterId" jdbcType="VARCHAR" />
+		<result column="preview" property="preview" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+    <resultMap id="mvResultMap" type="com.alivc.resource.pojo.MvResource">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="previewPic" property="previewPic" jdbcType="VARCHAR" />
+		<result column="previewMp4" property="previewMp4" jdbcType="VARCHAR" />
+		<result column="icon" property="icon" jdbcType="VARCHAR" />
+		<result column="duration" property="duration" jdbcType="VARCHAR" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="level" property="level" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+    <resultMap id="mediaResultMap" type="com.alivc.resource.pojo.VodMedia">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="media_id" property="mediaId" jdbcType="VARCHAR" />
+		<result column="icon" property="icon" jdbcType="VARCHAR" />
+		<result column="preview" property="preview" jdbcType="VARCHAR" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="VARCHAR" />
+		<result column="font_id" property="fontId" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+    <resultMap id="fontResultMap" type="com.alivc.resource.pojo.Font">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="banner" property="banner" jdbcType="VARCHAR" />
+		<result column="icon" property="icon" jdbcType="VARCHAR" />
+		<result column="preview" property="preview" jdbcType="VARCHAR" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="sort" property="sort" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	 <resultMap id="aspectResultMap" type="com.alivc.resource.pojo.Aspect">
+		<id column="aspect" property="aspect" jdbcType="INTEGER" />
+		<result column="url" property="download" jdbcType="VARCHAR" />
+	</resultMap>
+
+    
+    
+     <!-- 根据type获取动图，字幕信息 -->
+    <select id="getPasterList"  parameterType="java.lang.String"  resultMap="pasterResultMap">
+		SELECT 
+			 id,icon,description,is_new,name,level,paster_id,preview,type,sort,create_time
+		from vod_paster_resource  where  type = #{type,jdbcType=VARCHAR}
+	</select>
+	
+     <!-- 获取mv信息 -->
+    <select id="getMvList"  resultMap="mvResultMap">
+		SELECT 
+			 id,`key`,`name`,`level`,icon,duration,previewPic,previewMp4,sort,create_time
+		from vod_mv_resource     
+	</select>
+	
+	 <!-- 根据mv的id获取媒资信息 -->
+		<select id="getMvMediaById"  parameterType="java.lang.Integer"  resultMap="aspectResultMap">
+		select aspect,url  from vod_media where type = 
+		3 and  media_id  = #{mvId,jdbcType=INTEGER} 
+	</select>
+	 <!-- 根据字幕的id获取媒资信息 -->
+    <select id="getTextMediaById"  parameterType="java.lang.String"  resultMap="mediaResultMap">
+		select id,name, media_id, icon, preview,url,sort,font_id,create_time from vod_media where type = 
+		4 and  media_id in ( select media_id from vod_paster_media where type = 2 and paster_id = #{textId,jdbcType=VARCHAR}) 
+	</select>
+	 <!-- 根据动图的id获取媒资信息 -->
+    <select id="getPasterMediaById"  parameterType="java.lang.String"  resultMap="mediaResultMap">
+		select name, media_id id , icon, preview,url,sort,create_time from vod_media where type = 
+		2 and  media_id in ( select media_id from vod_paster_media where type = 1 and paster_id = #{pasterId,jdbcType=VARCHAR}) 
+	</select>
+	 <!-- 获取前置动图媒资信息 -->
+    <select id="getFrontMedia"    resultMap="mediaResultMap">
+		select name, media_id id, icon, preview,url,sort,create_time from vod_media where type = 1
+	</select>
+	 <!-- 根据id获取字体 -->
+    <select id="getFontById" parameterType="java.lang.String"   resultMap="fontResultMap">
+		select id,name, banner, icon, banner,url,sort,create_time from vod_font_resource  where id = #{id,jdbcType=VARCHAR}
+	</select>
+    
+</mapper>
